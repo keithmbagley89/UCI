@@ -1,0 +1,426 @@
+## Homework : Linux Week 1
+
+### Background
+
+In the previous class activities, you acted as system administrator in order to troubleshoot a malfunctioning server.
+
+The senior administrator was quite pleased with your work. Now, they would like you to prepare another server to replace this server. You are tasked with completing the  following checklist in order to prepare a new server. 
+
+### Topics Covered in this Activity
+
+- Setting permissions
+- Creating user accounts and user groups
+- Special bits
+- Encrypted passwords
+- `tty`
+- Tripwire
+- Lynis
+
+----
+
+### Instructions:
+
+The administrator has provided a checklist for you detailing all the steps that need to be done.
+
+#### Checklist:
+
+#### Set permissions on sensitive files:
+- Set permissions on `/etc/shadow` to allow only `root` read and write access.
+
+sudo chmod 0600 /etc/shadow
+ls -la /etc | grep shadow
+
+- Set permissions on `/etc/gshadow` to allow only `root` read and write access.
+
+sudo chmod 0600 /etc/gshadow
+ls -la /etc | grep shadow
+
+- Set permissions on `/etc/group` to allow `root` read and write access, and allow everyone else `read` access only.
+
+sudo chmod 604 /etc/group
+ls -la /etc/group
+
+- Set permissions on `/etc/passwd` to allow `root` read and write access, and allow everyone else `read` access only.
+
+sudo chmod 604 /etc/passwd
+ls -la /etc/passwd
+
+#### Create user accounts: 
+
+```
+# get password quality package 
+sudo apt install libpam-pwquality -y
+
+# edit /etc/security/pwquality.conf
+sudo echo "minlen = 16" >> /etc/security/pwquality.conf
+sudo echo "minclass = 4" >> /etc/security/pwquality.conf
+
+# Add user accounts 
+
+# `sam`;
+
+sudo useradd -p -m sam
+ sudo chage -M 90 sam
+
+# `joe`; 
+
+sudo useradd -p -m joe
+ sudo chage -M 90 joe
+
+
+# `amy`; 
+
+sudo  amy
+ sudo chage -M 90 amy
+
+
+#`sara`;  
+
+sudo adduser sara
+ sudo chage -M 90 sara
+
+
+# `admin`;
+
+sudo adduser admin
+ sudo chage -M 90 admin
+ sudo usermod -m -p "hash" -aG sudo admin
+
+ # Clean Up
+    sudo userdel sam;
+    sudo userdel joe;
+    sudo userdel amy;
+    sudo userdel admin;
+    sudo userdel sara;
+    sudo rm -rf /home/sam /home/joe /home/amy /home/admin /home/sara
+    
+    #!/bin/bash
+
+    names=("sam" "amy")
+
+    echo $names;
+
+    for name in "${names[@]}";
+    do
+
+        echo "Creating user $name " ;
+
+        sudo useradd -m -p 'hash goes here'
+        sudo chage -M 90 $name;
+
+        echo "Finished making user $name"
+    done
+
+ ```
+
+- Force users to create 16 character passwords incorporating numbers and symbols.
+- Force passwords to expire every `90` days.
+- Ensure that only the `admin` has general sudo access.
+
+#### Create user group:
+
+```
+    mkdir engineers
+    sudo groupadd engineers
+    sudo usermod -G Engineers sam
+    sudo usermod -G Engineers joe
+    sudo usermod -G Engineers amy
+    sudo usermod -G Engineers sara
+    sudo chown :engineers /home/engineers
+    sudo chmod g+s,o+t /home/engineers
+
+    drwxr-sr-t  2 root     engineers  4096 Apr 11 21:23 engineers
+
+```
+
+- Add a `engineers` group to the system.
+- Add users `sam`, `joe`, `amy`, and `sara` to the managed group.
+- Create a shared folder for this group at `/home/engineers`.
+- Change the group on the engineers directory to the `engineers` group.
+- Add the `GUID` bit _and_ the `sticky` bit to allow collaboration between engineers in this directory.
+
+
+#### Install and configure `tripwire`. 
+
+Install `tripwire`. 
+
+- Run `sudo apt remove tripwire` to make sure no older versions are installed.
+
+- In order for tripwire to run functionally, we'll want the most updated VM. Run the following commands:
+
+  - `apt update` to update your VM. 
+
+  - `apt upgrade` to upgrade your VM.
+
+  ```
+  sudo apt install tripwire
+
+  ``` 
+
+Configure `tripwire`.
+
+- Tripwire comes with a configuration tool called `twadmin`, which you can only run with `sudo`.
+	
+  - Run `sudo twadmin --help` to see the options you can use with `twadmin`.
+
+- The main policy file for Tripwire is `/etc/tripwire/twpol.txt`. This file is used to let Tripwire know which directories to check.  
+
+- On a production server, we may not want Tripwire to check every single file, so we can exclude files by commenting them out. Configuring Tripwire will require commenting out the `/proc` and `/dev` directories from the `/etc/tripwire/twpol.txt` file.
+
+  - By placing a `#` in front of text, we are telling the system not to read that text as code to be run. Rather, it is ignored and left as plain text writing that is used by humans to leave notes or toggle codes on and off. 
+  
+- Use the `#` symbol to comment `/proc` and `/dev` underneath ` # Critical Devices` in `/etc/tripwire/twpol.txt`. 
+
+ ```
+ sudo nano /etc/tripwire/twpol.txt
+ opens nano
+ scroll down to where it says /proc and /dev under # Critical Devices section
+
+ ```
+ 
+- Once you have commented out the `/proc` and `/dev` directories, run the following command to tell Tripwire to use this recreated policy file:
+    
+  - `sudo twadmin --create-polfile /etc/tripwire/twpol.txt`
+
+```
+
+    Please enter your site passphrase: 
+    Wrote policy file: /etc/tripwire/tw.pol
+
+```
+
+Now, we need to create a database of hashes that Tripwire will use to verify our files when we run it. Tripwire creates this database using the policy file as a guide:
+
+- Run the command `sudo tripwire --init` to create the database.
+
+```
+
+    Please enter your local passphrase: 
+    Parsing policy file: /etc/tripwire/tw.pol
+    Generating the database...
+    *** Processing Unix File System ***
+
+... run to bathroom real quick ....
+
+    No such file or directory, continuing, etc.. but we see The database was successfully generated.
+    Lets check it
+
+```
+
+   - Most of the output will be errors and warnings, because we have not yet fully edited the configuration file for our system and use case.
+
+- After the initialization finishes, run `tripwire --check`. Towards the end of this output, you will see a list of all the files that Tripwire tried to check, but couldn't find (because they don't exist on this system).
+
+```
+    sudo tripwire --check
+    Parsing policy file: /etc/tripwire/tw.pol
+    *** Processing Unix File System ***
+    Performing integrity check...
+
+    eventually we get to this after all files say no such file or directory
+
+    ### Continuing...
+Wrote report file: /var/lib/tripwire/report/kali-20200409-231516.twr
+
+
+Open Source Tripwire(R) 2.4.3.7 Integrity Check Report
+
+Report generated by:          root
+Report created on:            Thu 09 Apr 2020 11:15:16 PM EDT
+Database last updated on:     Never
+
+===============================================================================
+Report Summary:
+===============================================================================
+
+Host name:                    kali
+Host IP address:              127.0.1.1
+Host ID:                      None
+Policy file used:             /etc/tripwire/tw.pol
+Configuration file used:      /etc/tripwire/tw.cfg
+Database file used:           /var/lib/tripwire/kali.twd
+Command line used:            tripwire --check 
+
+===============================================================================
+Rule Summary: 
+===============================================================================
+
+-------------------------------------------------------------------------------
+  Section: Unix File System
+-------------------------------------------------------------------------------
+
+  Rule Name                       Severity Level    Added    Removed  Modified 
+  ---------                       --------------    -----    -------  -------- 
+  Other binaries                  66                0        0        0        
+  Tripwire Binaries               100               0        0        0        
+  Other libraries                 66                0        0        0        
+  Root file-system executables    100               0        0        0        
+* Tripwire Data Files             100               1        0        0        
+  System boot changes             100               0        0        0        
+  Root file-system libraries      100               0        0        0        
+  (/lib)
+  Critical system boot files      100               0        0        0        
+  Other configuration files       66                0        0        0        
+  (/etc)
+  Boot Scripts                    100               0        0        0        
+  Security Control                66                0        0        0        
+  Root config files               100               0        0        0        
+  Invariant Directories           66                0        0        0        
+
+Total objects scanned:  132612
+Total violations found:  1
+
+===============================================================================
+Object Summary: 
+===============================================================================
+
+-------------------------------------------------------------------------------
+# Section: Unix File System
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+Rule Name: Tripwire Data Files (/var/lib/tripwire/kali.twd)
+Severity Level: 100
+-------------------------------------------------------------------------------
+
+Added:
+"/var/lib/tripwire/kali.twd"
+
+===============================================================================
+Error Report: 
+===============================================================================
+
+-------------------------------------------------------------------------------
+  Section: Unix File System
+
+    # CLEAN UP *** Take snapshot so if it goes bad I can recover
+
+    sudo su to root user 
+
+    root@kali:/etc# sudo tripwire --init
+    Please enter your local passphrase: 
+    Parsing policy file: /etc/tripwire/tw.pol
+    Generating the database...
+    *** Processing Unix File System ***
+
+    ... wait ....
+
+    same results
+
+    sudo tripwire --check
+
+    same results
+
+```
+
+
+- Use a compound command to generate a list of these errors and send it to your `/research` directory. Once you have the list of errors, change the `/etc/tripwire/twpol.txt` file to exclude these files from the check.
+
+  <details>
+  <summary>Hint</summary>
+  <br>
+  
+```
+   
+  sudo tripwire --check | grep -A 3 ^[1-9] > ~/research/tripwire.txt
+
+
+  
+```
+  </details>
+    
+- Each time you makes changes to the policy file, you must re-run `tripwire --init` before you run `tripwire --check`.
+
+- Run `tripwire --check` again and repeat this process until all the errors are resolved.
+
+Tripwire Troubleshooting: Most errors can be resolved by running:
+  - `apt remove tripwire`
+  - `updating` and `upgrading` all the packages on the system.
+  - Re-install Tripwire and start the instructions again.
+
+
+
+#### Bonus: Install Tripwire and create a Tripwire user.
+- Ensure that the `tripwire` account does not have a home folder.
+- Ensure that the `tripwire` account does not have a login shell.
+- Ensure that the `tripwire` account is locked.
+- Ensure that the `tripwire` account has a UID < 1000.
+- Ensure that the `tripwire` account can run the `tripwire` program using sudo.
+
+#### Lynis
+- Install and run `lynis`.
+
+```
+    sudo apt install lynis
+
+    sudo lynis audit system
+
+    Use this to run a system audit to show the hardening index and identify weaknesses in system.
+    Installing a malware scanner would improve the hardening.
+    Hardening index is at 60, 235 tests performed, Plugins enabled are 1.
+
+
+```
+- Provide a report from `lynis` output on what more could be done to harden the system.
+- **Bonus**: Install and run `chkrootkit` to verify the system does not have a root kit installed.
+
+
+---
+© 2020 Trilogy Education Services, a 2U, Inc. brand. All Rights Reserved. 
+
+  *****************
+  
+  I didn't add any snippets to this one because we did the
+  majority of it in class, but moving on from here, I will
+  be adding snippets to every hw submission.
+  
+  755  sudo chmod 0600 /etc/shadow
+  756  ls -la /etc | grep shadow
+  757  sudo chmod 0600 /etc/gshadow
+  758  ls -la /etc | grep shadow
+  759  sudo chmod 604 /etc/group
+  760  ls -la /etc/group
+  761  sudo chmod 604 /etc/passwd
+  762  ls -la /etc/passwd
+  763  sudo apt install libpam-pwquality -y
+  764  sudo echo "minlen = 16" >> /etc/security/pwquality.conf
+  765  sudo echo "minclass = 4" >> /etc/security/pwquality.conf
+  766  sudo echo "minlen = 16" >> /etc/security/pwquality.conf
+  767  sudo su
+  768  ls
+  769  ls -l
+  770  ls -la
+  771  nano pwquality.conf
+  772  tty
+  773  ls /dev
+  774  apt search tripwire
+  775  sudo apt install tripwire
+  776  sudo apt install lynis
+  777  sudo twadmin --help
+  778  nano /etc/tripwire/twpol.txt
+  779  sudo nano /etc/tripwire/twpol.txt
+  780  nano pwquality
+  781  nano pwquality.conf
+  782  sudo nano /etc/tripwire/twpol.txt
+  783  sudo twadmin --create-polfile /etc/tripwire/twpol.txt
+  784  sudo tripwire --init
+  785  tripwire --check
+  786  sudo tripwire --check
+  787  sudo su
+  788  ls
+  789  sudo usermod -p passwd "password" -aG sudo admin
+  790  ls
+  791  ls -la
+  792  ls -la /home
+  793  ls -l home
+  794  ls -l /home
+  795  cat sally
+  796  cat billy
+  797  ls
+  798  sudo su
+  799  cd /home
+  800  ls
+  801  cd /usr
+  802  ls
+  803  cd local
+

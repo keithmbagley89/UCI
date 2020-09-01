@@ -1,0 +1,303 @@
+# HW-3: ***♣♦♠♥ A High Stakes Investigation ♣♦♠♥!***
+
+### Overview
+* **Role**: Security Analyst
+* **Client**: Lucky Duck Casino
+* **Service**: Investigate high losses on roulette over the last month.
+
+* **Important Details**: *These answer the hypothetical questions needed to formulate a hypothesis on how the losses occured. You must learn to ask following questions for yourself: what, when, where, why finally leading to how the losses have occured.*
+
+1) Largest losses occurred on March 10th, 12th, and 15th.
+ 
+2) Your manager believes there is a player working with a Lucky Duck dealer to cheat at roulette.
+ 
+* *Casino contains a vast database containing data on:*
+    * Wins and losses
+    * Player analysis and dealer schedules.
+ 
+
+### S.L.A (Service Level Agreement)
+**Scope**: 
+-  *No Client System Access.*
+- *Given Commpressed Reports to Analyze in leui of access*
+- *May not alter or change reports or contents. As reports are to be returned with your generated report to complete the contract.*
+
+**Resource Files**
+- [Week of March 10th Table Report ](Resources/Roulette_Player_WinLoss_0310.zip)
+- [Week of March 10th, Employee Dealer schedule](Resources/Dealer_Schedules_0310.zip)
+
+**Requirements**:  
+* **1)**: Create the following directories to structure our investigation
+  -  Lucky_Duck_Investigations
+  -  Lucky_Duck_Investigation/Roulette_loss_Incident
+  -  Lucky_Duck_Investigation/Roulette_loss_Incident/Player_Analysis
+  -  Lucky_Duck_Investigation/Roulette_loss_Incident/Dealer_Analysis
+  -  Lucky_Duck_Investigation/Roulette_loss_Incident/Player_Dealer_Correlation
+
+***EXACT Commands Used***
+```
+  # 1) PUT COMMANDS Below this line
+
+    mkdir Lucky_Duck_Investigation
+    mkdir Lucky_Duck_Investigation/Roulette_loss_Incident
+    mkdir Lucky_Duck_Investigation/Roulette_loss_Incident/Player_Analysis
+    mkdir Lucky_Duck_Investigation/Roulette_loss_Incident/Dealer_Analysis
+    mkdir Lucky_Duck_Investigation/Roulette_loss_Incident/Player_Dealer_Correlation
+```
+
+* **2)**:  For all folders In Roullette_loss_Incident/, create an empty file called `Notes_<Directory Name>` replacing < Directory Name > with the name of the Directory
+  - **Ex**:
+    - Lucky_Duck_Investigation/Roulette_loss_Incident/Player_Analysis/Notes_Player_Analysis.md
+```
+  # 1) PUT COMMANDS Below this line
+
+    touch Lucky_Duck_Investigation/Roulette_loss_Incident/Player_Analysis/Notes_Player_Analysis.md
+    touch Lucky_Duck_Investigation/Roulette_loss_Incident/Dealer_Analysis/Notes_Dealer_Analysis.md
+    touch Lucky_Duck_Investigation/Roulette_loss_Incident/Player_Dealer_Correlation/Notes_Player_Dealer_Correlation.md
+```
+
+
+### Step 2: Gathering Evidence
+
+    mv Roulette_Player_WinLoss_0310/0310_win_loss_player_data Roulette_loss_Incident/Player_Analysis
+    mv Roulette_Player_WinLoss_0310/0312_win_loss_player_data Roulette_loss_Incident/Player_Analysis
+    mv Roulette_Player_WinLoss_0310/0315_win_loss_player_data Roulette_loss_Incident/Player_Analysis
+    mv Dealer_Schedules_0310/0310_Dealer_schedule Roulette_loss_Incident/Dealer_Analysis
+    mv Dealer_Schedules_0310/0312_Dealer_schedule Roulette_loss_Incident/Dealer_Analysis
+    mv Dealer_Schedules_0310/0315_Dealer_schedule Roulette_loss_Incident/Dealer_Analysis                                                   
+
+
+
+Your next task is to move evidence from the specific days Lucky Duck experienced 
+ losses at the roulette tables. 
+
+ - The following [files and directories](Resources/Roulette_Player_WinLoss_0310.zip) contain the win/loss player data from the roulette tables during the week of March 10th.
+  
+   - Since the losses occurred on March 10th, 12th, and 15th, move those files into the directory `Player_Analysis`.
+ 
+ - The following [files and directories](Resources/Dealer_Schedules_0310.zip) contain the employee schedules for all of Lucky Duck's tables during the week of March 10th.
+ 
+   - Since the losses occurred on March 10th, 12th, and 15th, move the schedules for those days into the directory `Dealer_Analysis`
+
+
+### Step 3: Correlating the Evidence
+
+Your next task is to correlate the large losses from the roulette tables to the dealer schedule in order to determine the dealer and player that are likely colluding to steal money from Lucky Duck.
+
+ - *Note: Any winnings for Luck Duck Casino are indicated with a positive number and any losses are a negative number.*
+
+Complete the following tasks:
+
+#### Player Analysis
+
+- Navigate into the `Player_Analysis` directory.
+
+- Use `grep` to isolate out all the `losses` that occurred on March 10th, 12th, and 15th.
+
+- Place those results into a file called `Roulette_Losses`.
+
+- Preview your file `Roulette_Losses` and analyze the data.
+
+    cd Player_Analysis
+    touch Roulette_Losses.md
+    grep - * > Roulette_Losses
+    nano Roulette_Losses
+
+    0310_win_loss_player_data:05:00:00 AM  -$82,348        Amirah Schneider,Nola Portillo, Mylie Schmi>
+    0310_win_loss_player_data:08:00:00 AM   -$97,383        Chanelle Tapia, Shelley Dodson , Valentino >
+    0310_win_loss_player_data:02:00:00 PM   -$82,348        Jaden Clarkson, Kaidan Sheridan, Mylie Schm>
+    0310_win_loss_player_data:08:00:00 PM   -$65,348        Mylie Schmidt, Trixie Velasquez, Jerome Kle>
+    0310_win_loss_player_data:11:00:00 PM   -$88,383        Mcfadden Wasim, Norman Cooper, Mylie Schmid>
+    0312_win_loss_player_data:05:00:00 AM   -$182,300       Montana Kirk, Alysia Goodman, Halima Little>
+    0312_win_loss_player_data:08:00:00 AM   -$97,383        Rimsha Gardiner,Fern Cleveland, Mylie Schmi>
+    0312_win_loss_player_data:02:00:00 PM   -$82,348        Mae Hail,  Mylie Schmidt,Ayden Beil
+    0312_win_loss_player_data:08:00:00 PM   -$65,792        Tallulah Rawlings,Josie Dawe, Mylie Schmidt>
+    0312_win_loss_player_data:11:00:00 PM   -$88,229        Vlad Hatfield,Kerys Frazier,Mya Butler, Myl>
+    0315_win_loss_player_data:05:00:00 AM   -$82,844        Arjan Guzman,Sommer Mann, Mylie Schmidt
+    0315_win_loss_player_data:08:00:00 AM   -$97,001        Lilianna Devlin,Brendan Lester, Mylie Schmi>
+    0315_win_loss_player_data:02:00:00 PM   -$182,419        Mylie Schmidt, Corey Huffman
+
+
+- Then, document in the `Notes_Player_Analysis` file:
+```
+    cd ../
+    nano Notes_Player_Analysis
+    Determined Mylie Schmidt is culprit. She was there at every time of loss on the given days. 13 games.
+    3/10 5am, 8am, 2pm, 8pm, 11pm / 3/12 5am, 8am, 2pm, 8pm, 11pm / 3/15 5am, 8am, 2pm
+    grep 'Mylie Schmidt' Roulette_Losses| wc -l
+    13
+```
+  - The Times the losses occurred on each day.
+  - If there is a certain player that was playing during each of those times.
+  - Total count of times this player was playing.
+    - Hint: Use the `wc` command for this value.
+   
+     
+#### Dealer Analysis   
+
+- Navigate into the `Dealer_Analysis` directory.
+
+- This file contains the Dealer schedules for the various Lucky Duck casino games: `Blackjack`, `Roulette`, and `Texas Hold 'Em`.
+
+- Preview the schedule to view the format and how the data is separated.
+
+0310_Dealer_schedule:01:00:00 AM        Billy Jones     Saima Mcdermott Summer-Louise Hammond
+0310_Dealer_schedule:02:00:00 AM        Summer-Louise Hammond   Abigale Rich    John-James Hayward
+0310_Dealer_schedule:03:00:00 AM        John-James Hayward      Evalyn Howell   Chyna Mercado
+0310_Dealer_schedule:09:00:00 AM        Marlene Mcpherson       Cleveland Hanna Summer-Louise Hammo>
+0310_Dealer_schedule:10:00:00 AM        Izabela Parrish Madina Britton  John-James Hayward
+0310_Dealer_schedule:11:00:00 AM        Madina Britton  Summer-Louise Hammond   Chyna Mercado
+0310_Dealer_schedule:12:00:00 PM        Summer-Louise Hammond   John-James Hayward      Katey Bean
+0310_Dealer_schedule:01:00:00 PM        John-James Hayward      Chyna Mercado   Evalyn Howell
+0310_Dealer_schedule:05:00:00 PM        Billy Jones     Rahima Figueroa Summer-Louise Hammond
+0310_Dealer_schedule:06:00:00 PM        Rahima Figueroa John-James Hayward      John-James Hayward
+0312_Dealer_schedule:01:00:00 AM        Billy Jones     Saima Mcdermott Summer-Louise Hammond
+0312_Dealer_schedule:02:00:00 AM        Summer-Louise Hammond   Abigale Rich    John-James Hayward
+0312_Dealer_schedule:03:00:00 AM        John-James Hayward      Evalyn Howell   Chyna Mercado
+0312_Dealer_schedule:09:00:00 AM        Marlene Mcpherson       Cleveland Hanna Summer-Louise Hammo>
+0312_Dealer_schedule:10:00:00 AM        Izabela Parrish Madina Britton  John-James Hayward
+0312_Dealer_schedule:11:00:00 AM        Madina Britton  Summer-Louise Hammond   Chyna Mercado
+0312_Dealer_schedule:12:00:00 PM        Summer-Louise Hammond   John-James Hayward      Katey Bean
+0312_Dealer_schedule:01:00:00 PM        John-James Hayward      Chyna Mercado   Evalyn Howell
+0312_Dealer_schedule:05:00:00 PM        Billy Jones     Rahima Figueroa Summer-Louise Hammond
+0312_Dealer_schedule:06:00:00 PM        Rahima Figueroa John-James Hayward      John-James Hayward
+0315_Dealer_schedule:01:00:00 AM        Billy Jones     Saima Mcdermott Summer-Louise Hammond
+0315_Dealer_schedule:02:00:00 AM        Summer-Louise Hammond   Abigale Rich    John-James Hayward
+0315_Dealer_schedule:03:00:00 AM        John-James Hayward      Evalyn Howell   Chyna Mercado
+0315_Dealer_schedule:09:00:00 AM        Marlene Mcpherson       Cleveland Hanna Summer-Louise Hammo>
+0315_Dealer_schedule:10:00:00 AM        Izabela Parrish Madina Britton  John-James Hayward
+0315_Dealer_schedule:11:00:00 AM        Madina Britton  Summer-Louise Hammond   Chyna Mercado
+0315_Dealer_schedule:12:00:00 PM        Summer-Louise Hammond   John-James Hayward      Katey Bean
+0315_Dealer_schedule:01:00:00 PM        John-James Hayward      Chyna Mercado   Evalyn Howell
+0315_Dealer_schedule:05:00:00 PM        Billy Jones     Rahima Figueroa Summer-Louise Hammond
+0315_Dealer_schedule:06:00:00 PM        Rahima Figueroa John-James Hayward      John-James Hayward
+
+    cat 0310_Dealer_schedule | awk -F" " '{print $1, $2, $5, $6}' | grep '05:00:00 AM' > Dealers_working_during_losses
+    Repeat this step but with a double chevron so it doesnt overwrite, with all of the times below.
+
+05:00:00 AM Billy Jones
+02:00:00 PM Billy Jones
+08:00:00 PM Billy Jones
+11:00:00 PM Billy Jones
+05:00:00 AM Billy Jones
+08:00:00 AM Billy Jones
+02:00:00 PM Billy Jones
+08:00:00 PM Billy Jones
+11:00:00 PM Billy Jones
+05:00:00 AM Billy Jones
+08:00:00 AM Billy Jones
+02:00:00 PM Billy Jones
+08:00:00 AM Billy Jones
+
+    In the ~/Desktop/Lucky_Duck_Investigation/Roulette_loss_Incident/Dealer_Analysis directory
+    grep "Billy Jones" Dealers_working_during_losses | wc -l
+    The result is ( finally ) 13
+
+    Added to Notes_Dealer_Analysis that it is Billy Jones that is the culprit
+
+- Using your findings from the Player Analysis, create a **separate script to look at each day and each time** that you determined  losses occurred. Use `awk`, `pipes`, and `grep` tp isolates out the following four fields:
+  - Time
+  - AM/PM
+  - First Name of Roulette Dealer
+  - Last Name of Roulette Dealer
+
+- For example, if there was a loss that occurred on `March 10th at 2 PM`, you would write one script that found the Roulette Dealer that was working at that specific day and time. 
+  - *Hint: you will have many scripts, but only a small change is needed in each script.*
+
+
+- Run all of the scripts and append those results into a file called `Dealers_working_during_losses`.
+
+- Preview your file `Dealers_working_during_losses` and analyze the data.
+
+- Document in the `Notes_Dealer_Analysis` file: 
+
+  - The primary dealer that was working the times the losses occurred.
+
+  - How many times the dealer worked when major losses occurred.
+
+#### Player/Employee Correlation
+
+  - In notes file of the `Player_Dealer_Correlation` directory, add your summary of the player and dealer you believe are colluding to scam Lucky Duck. 
+  
+  - Make sure to document your specific reasons for this finding.
+
+    Added to Player_Dealer_Correlation that it is Mylie Schmidt and Billy Jones that have been working together.
+
+ 
+### Step 4: Scripting your Tasks
+
+
+You manager is impressed with the work you have done so far on the investigation.  
+
+  - Your manager has tasked you with building a shell script that can easily analyze future employee schedules. Therefore, we can determine who was the employee working at a specific time in case losses occur again.
+
+  - This shell script can be provided to anyone in the security department to easily do the same analysis.
+
+Complete the following tasks:
+
+   - Remain in the  `Dealer_Analysis` directory.
+
+   - Develop a shell script called `roulette_dealer_finder_by_time.sh` that can analyze the employee schedule to easily find the Roulette Dealer at a specific time.
+
+      - *Hint: You will be using a script similar to the one you created for "Dealer Analysis", except do not output the results into a file.*
+
+   - Design the shell script to accept the following two arguments:
+     - One for the date (Four Digits)
+     - One for the time
+    
+     Note: The argument should be able to accept AM or PM.
+   
+   - Test your script on the schedules to confirm it outputs the correct dealer at the time specified. 
+
+        touch roulette_dealer_finder_by_time_and_game.sh
+        nano roulette_dealer_finder_by_time_and_game.sh
+        cat $1_Dealer_schedule | awk -F" " '{print $1, $2, '$3','$4' }'| grep "$2" ( into the script of course )
+        sh roulette_dealer_finder_by_time_and_game.sh
+        0310 '02:00:00 PM' '$3' '$4'
+        02:00:00 PM Chyna Mercado on Blackjack
+
+        sh roulette_dealer_finder_by_time_and_game.sh 0310 '02:00:00 PM' '$5' '$6'
+        0310 '02:00:00 PM' '$5' '$6'
+        02:00:00 PM Billy Jones on Roulette
+
+        Gotcha Billy!
+
+        sh roulette_dealer_finder_by_time_and_game.sh 0310 '02:00:00 PM' '$7' '$8'
+        0310 '02:00:00 PM' '$7' '$8'
+        02:00:00 PM Cleveland Hanna
+
+
+
+
+
+        
+
+**Bonus:**  In case there is future fraud on the other Lucky Duck Games, create a shell script called `roulette_dealer_finder_by_time_and_game.sh` that has the three following arguments:
+
+   - One for the the specific time
+   - One for the specific date
+   - One for the casino game being played
+    
+     *Hint: The argument does not need to name the specific casino game.*
+
+ 
+### Your Submission
+
+#### Guidelines for your Submission:
+  
+Move the following to the `Player_Dealer_Correlation` directory:
+  - All of your note files
+  - Your Evidence Files:
+    - `Roulette_Losses`
+    - `Dealers_working_during_losses`
+  - Your Shell script(s)
+
+
+Submit your findings!
+
+Homework Complete, Great Job!
+
+---
+
+© 2020 Trilogy Education Services, a 2U, Inc. brand. All Rights Reserved.
+
